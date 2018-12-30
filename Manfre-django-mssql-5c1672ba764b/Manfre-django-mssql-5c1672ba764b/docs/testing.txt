@@ -1,0 +1,53 @@
+Testing
+=======
+
+All tests are contained in the ``tests`` folder.
+
+Running The Django-mssql Test Suite
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The Django-mssql Test Suite mimics the Django Test Suite. ``runtests.py`` works
+the same, except by default it will run all of the Django-mssql tests and only
+a subset of the Django Test Suite. From the Django-mssql `tests` folder, run the
+following command.
+
+.. code-block:: cmd
+
+    python runtests.py --settings=test_mssql
+
+.. note::
+
+    You will need to change the database configuration in test_mssql or create
+    your own setting file.
+
+Running Django Test Suite
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To `run the Django test suite`_, you will need to create a settings file that lists
+'sqlserver_ado' as the :setting:`ENGINE`.
+
+Example settings:
+
+.. code-block:: python
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'sqlserver_ado',
+            'NAME': 'django_framework',
+            'HOST': r'localhost\ss2012',
+            'USER': '',
+            'PASSWORD': '',
+        },
+        'other': {
+            'ENGINE': 'sqlserver_ado',
+            'NAME': 'django_framework_other',
+            'HOST': r'localhost\ss2012',
+            'USER': '',
+            'PASSWORD': '',
+        }
+    }
+
+    SECRET_KEY = "django_tests_secret_key"
+
+
+.. _`run the Django test suite`: https://docs.djangoproject.com/en/dev/internals/contributing/writing-code/unit-tests/

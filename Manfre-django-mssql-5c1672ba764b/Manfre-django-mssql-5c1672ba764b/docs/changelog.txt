@@ -1,0 +1,178 @@
+Changelog
+=========
+
+v1.8
+----
+
+- Only Django 1.8 is supported
+- MSSQL Server 2012 or newer is supported
+- Fixed usage of `isoformat()` for Python 2.7. (Thanks erinwyher)
+- Fixed error when doing a zero size slicing of [0:0]. :djangoticket:`25894`
+  (Thanks Rebecca Muraya)
+- Removed code supporting Django versions prior to 1.8. (Thanks Tim Graham)
+- Force `pywintypes.datetime` to `datetime.datetime`.
+- Fixed Read the Docs link (Thanks Adam Johnson)
+- Removed unused DatabaseError and IntegrityError declarations.
+- Changing a field type will now preserve the field's nullability.
+- Fixed date and time related conversions when using django-mssql provided 
+  fields.
+
+v1.7.1
+------
+
+- Added missing ``_hints`` to ``RawStoredProcedureQuerySet`. :issue:`83`
+  (Thanks Xiayun Sun)
+
+v1.7
+----
+
+- Enabled bulk_insert database feature. :issue:`6` (Thanks João Pedro Francese)
+- Fixed string representation for Decimals in format '2.82E+3'. :issue:`55`
+  (Thanks João Pedro Francese)
+- Simplified the ``SQLCompiler`` by taking advantage of *OFFSET*/*FETCH* for
+  slicing.
+- SQL 2008 and 2008r2 are no longer supported.
+- Removed modified BaseDatabaseSchema and refactored to use the class provided
+  by Django.
+- Removed south_adapter.py
+
+v1.6.1
+------
+
+- Fixed issue with setup.py that prevented installing on Python 3.4. :issue:`60`
+
+
+v1.6
+----
+
+- SQL Server 2005 is no longer supported. It should not be used.
+- Added support for Django 1.7.
+
+  - Schema migrations is a new Django feature that may have unexpected issues
+    that could result in data loss or destruction of the database schema. You
+    should inspect all generated SQL before manually applying to your production
+    database.
+
+- Password is masked from the connection string if there are connection errors.
+  Thanks Martijn Pieters.
+- Added :ref:`project-goals` and documentation geared toward those wanting to
+  contribute to Django-mssql. See :ref:`contributing`.
+- Removed the `dbgui` management command, which didn't work anyway.
+
+v1.5.1
+------
+
+- Datetime strings are now in a format that should work regardless of SQL language/format setting. :issue:`57`
+- The default value for :setting:`use_legacy_date_fields` has changed to 'False'. This setting will be removed in a
+  later version. Once removed, any usage of the legacy 'datetime' datatype will require using the provided
+  'Legacy*Field' model fields.
+- SQL Server 2005 has not been tested in a while and support will officially be removed in the next release.
+- Decimals are passed through ADO as strings to avoid rounding to four places. :issue:`55`.
+- Database introspection will now identify a char type with a length over 8000 as a ``TextField``. :issue:`53`
+- Minor changes to make it possible to subclass django-mssql for use on a non-Windows platform.
+
+v1.5
+----
+
+- This version only supports Django v1.6. Use a previous version if you are using Django v1.5 or earlier.
+- Added ``BinaryField`` as ``varbinary(max)``
+- Refactored DatabaseOperations.sql_flush to use a faster method of disabling/enabling constraints.
+- ``sqlserver_ado.fields.DateTimeField`` will now do a better job of returning an aware or naive datetime.
+- DateTime truncation will now support any ``datetime2`` value without the potential of a datediff overflow exception.
+- Many improvements to regex_clr
+
+  - Updated regex_clr to Visual Studio 2010
+  - Patterns and fields with a length greater than 4000 will now work.
+  - If pattern or input are NULL, it will not match instead of raising an exception.
+  - regex_clr auto-installs during test database creation
+  - Added command :ref:`command_install_regex_clr` to simplify enabling regex support for any database.
+
+- Database introspection will now identify a ``varchar(max)`` field as a ``TextField``.
+- DatabaseIntrospection.get_indexes now properly finds regular, non-unique, non-primary indices.
+- Complete refactor of django-mssql test suite and abandoned tests that are covered by Django test suite.
+- Test database is dropped in a more forcible way to avoid "database in use" errors.
+
+v1.4
+----
+
+- Support for Django v1.3 has been removed.
+- Corrected DB-API 2 testing documentation.
+- Fixed issue with slicing logic that could prevent the compiler from finding
+  and mapping column aliases properly.
+- Improved the "return ID from insert" logic so it can properly extract the
+  column data type from user defined fields with custom data type strings.
+- Fixed case for identifiers in introspection. Thanks Mikhail Denisenko.
+- Added option :setting:`use_legacy_date_fields` (defaults to True) to allow changing the DatabaseCreation.data_types to
+  not use the Microsoft preferred date data types that were added with SQL Server 2008. :issue:`31`
+- Improved accuracy of field type guessing with inspectdb. See :ref:`introspecting-custom-fields`
+- Fixed issue with identity insert using a cursor to the wrong database in a multi-database environment. Thanks Mikhail
+  Denisenko
+- Fixed constraint checking. :issue:`35` Thanks Mikhail Denisenko
+- Enabled ``can_introspect_autofield`` database feature. :djangoticket:`21097`
+- Any date related field should now return from the database as the appropriate Python type, instead of always being a
+  datetime.
+- Backend now supports doing date lookups using a string. E.g. ``Article.objects.filter(pub_date__startswith='2005')``
+- ``check_constraints`` will now check all disabled and enabled constraints. This change was made to match the behavior
+  tested by ``backends.FkConstraintsTests.test.test_check_constraints``.
+- Improved ``date_interval_sql`` support for the various date/time related datatypes. The ``timedelta`` value will
+  control whether the database will ``DATEADD`` using ``DAY`` or ``SECOND``. Trying to add seconds to a ``date``, or
+  days to a ``time`` will generate database exceptions.
+- Fixed issue with provider detection that prevented ``DataTypeCompatibility=80`` from being automatically added to the
+  connection string for the native client providers.
+- Fixed SQL generation error that occured when ordering the query based upon a column that is not being returned.
+- Added savepoint support. MS SQL Server doesn't support savepoint commits and will no-op it. Other databases, e.g.
+  postgresql, mostly use it as a way of freeing server resources in the middle of a transaction. Thanks Martijn Pieters.
+- Minor cleanup of limit/offset SQL mangling to allow custom aggregates that require multiple column replacements.
+  :issue:`40` Thanks Martijn Pieters for initial patch and tests.
+- Savepoints cannot be used with MARS connections. :issue:`41`
+
+v1.3.1
+------
+
+- Ensure Django knows to re-enable constraints. :issue:`29`
+
+v1.3
+----
+
+- Backend now supports returning the ID from an insert without needing an additional query. This is disabled
+  for SQL Server 2000 (assuming that version still works with this backend). :issue:`17`
+
+  - This will work even if the table has a trigger. :issue:`20`
+
+- Subqueries will have their ordering removed because SQL Server only supports it when using TOP or FOR XML.
+  This relies upon the ``with_col_aliases`` argument to ``SQLCompiler.as_sql`` only being ``True`` when the query
+  is a subquery, which is currently the case for all usages in Django 1.5 master. :issue:`18`
+- UPDATE statements will now return the number of rows affected, instead of -1. :issue:`19`
+- Apply fix for :djangoticket:`12192`. If QuerySet slicing would result in ``LIMIT 0``, then it shouldn't reach
+  the database because there will be no response.
+- Implemented DatabaseOperation ``cache_key_culling_sql``. :djangoticket:`18330`
+- Fixed ``cast_avg_to_float`` so that it only controls the cast for ``AVG`` and not mapping other aggregates.
+- Improved IP address detection of :setting:`HOST` setting. :issue:`21`
+- Set database feature ``ignores_nulls_in_unique_constraints = False`` because MSSQL cannot ignore NULLs in
+  unique constraints.
+- :issue:`26` Documented clustered index issue with Azure SQL. See :ref:`azure-clustered-indices`.
+
+v1.2
+----
+
+- Ensure master connection connects to the correct database name when TEST_NAME is not defined.
+- Connection.close() will now reset adoConn to make sure it's gone before the CoUninitialize.
+- Changed provider default from 'SQLOLEDB' to 'SQLNCLI10' with MARS enabled.
+- Added :ref:`rawstoredproceduremanager`, which provides ``raw_callproc`` that works the same as ``raw``, except
+  expects the name of a stored procedure that returns a result set that matches the model.
+- Documented known issue with database introspection with ``DEBUG = True`` and column names containing '%'.
+  See :ref:`introspecting-percent-columns`.
+- Fixed error with `iendswith` string format operator.
+
+v1.1
+----
+
+- Updated SQLInsertCompiler to work with Django 1.4
+- Added support for ``disable_constraint_checking``, which is required for ``loaddata`` to work properly.
+- Implemented ``DatabaseOperations.date_interval_sql`` to allow using expressions like ``end__lte=F('start')+delta``.
+- Fixed date part extraction for ``week_day``.
+- DatabaseWrapper reports vendor as 'microsoft'.
+- AVG function now matches core backend behaviors and will auto-cast to ``float``, instead of maintaining datatype.
+  Set database ``OPTIONS`` setting ``disable_avg_cast`` to turn off the auto-cast behavior.
+- StdDev and Variance aggregate functions are now supported and will map to the proper MSSQL named functions. Includes work around for :djangoticket:`18334`.
+- Monkey patched ``django.db.backends.util.CursorWrapper`` to allow using cursors as ContextManagers in Python 2.7. :djangoticket:`17671`.

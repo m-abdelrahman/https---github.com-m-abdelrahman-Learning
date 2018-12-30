@@ -1,0 +1,27 @@
+=============================
+Django MSSQL Database Backend
+=============================
+
+Provides an ADO based Django database backend for Microsoft SQL Server.
+
+Welcome to Django-mssql's documentation!
+========================================
+
+Contents:
+
+.. toctree::
+    :maxdepth: 2
+
+    quickstart
+    settings
+    usage
+    commands
+    datatypes
+    testing
+    contributing
+    changelog
+
+.. toctree::
+    :maxdepth: 1
+    
+    known-issues
